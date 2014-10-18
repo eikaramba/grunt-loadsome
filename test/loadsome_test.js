@@ -27,7 +27,7 @@ exports.loadsome = {
     // setup here if necessary
     done();
   },
-  custom_options: function (test) {
+  simple_replace: function (test) {
     var actual = grunt.file.read('test/output/testing.html');
     var expected = grunt.file.read('test/expected/testing.html');
     test.equal(actual, expected, 'simple script tags should be downloaded and replaced with the correct references.');
