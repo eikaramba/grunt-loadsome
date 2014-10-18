@@ -3,7 +3,7 @@
 # grunt-loadsome
 [![NPM version](https://nodei.co/npm/grunt-loadsome.png?compact=true)](https://nodei.co/npm/grunt-loadsome/) [![Build Status](https://travis-ci.org/eikaramba/grunt-loadsome.svg)](https://travis-ci.org/eikaramba/grunt-loadsome) [![dependencies](https://david-dm.org/eikaramba/grunt-loadsome.png)](https://david-dm.org/eikaramba/grunt-loadsome)
 
-> Replaces references of loadso.me to their downloaded and concenated local counterparts
+> Replaces references of [loadso.me](https://loadso.me) to their downloaded and concenated local counterparts
 
 ## Getting Started
 This plugin requires Grunt.

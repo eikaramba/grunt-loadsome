@@ -111,27 +111,30 @@ module.exports = function(grunt) {
                             grunt.log.writeln('found & download: ' + replaceOrder.replace);
 
                             request("https://loadso.me"+replaceOrder.path, function(err, response, downloadedContent) {
-                                if (err && response.statusCode !== 200) {
-                                    grunt.log.subhead('upload failed:' + err);
-                                    nextReplace(err);
+                                if (response.statusCode !== 200 || err) {
+                                    if(response.statusCode == 429)
+                                        grunt.log.subhead('Too many requests, please report this us so that we can adapt the timeout or implement a additional option to include a token for unlimited requests!');
+                                    else  
+                                        grunt.log.subhead('Download failed:' + err);
+                                    setTimeout(function(){ nextReplace(err) }, 1150); //TODO: Add token option so that more concurrent calls can be made
+                                }else{
+                                    var hash = md5(downloadedContent, "md5", 'hex');
+
+                                    //settings.downloadPath must end with slash, TODO: Add if missing
+                                    var relativePath = path.relative(path.dirname(dest), settings.downloadPath).replace(new RegExp('\\' + path.sep, 'g'), '/');
+
+                                    var assetLocalPath = unixifyPath(path.join(settings.downloadPath, hash + "." + replaceOrder.filetype));
+                                    var assetPath = relativePath + "/" + hash + "." + replaceOrder.filetype;
+
+                                    grunt.file.write(assetLocalPath, downloadedContent);
+                                    grunt.log.writeln('Downloaded loadsome file written to '+assetLocalPath);
+                                    if (options.mode !== false) {
+                                        fs.chmodSync(assetLocalPath, (options.mode === true) ? fs.lstatSync(src).mode : options.mode);
+                                    }
+                                    replaceOrder.newPath = assetPath;
+                                    replaceOrders.push(replaceOrder);
+                                    setTimeout(function(){ nextReplace(err) }, 1150); //TODO: Add token option so that more concurrent calls can be made
                                 }
-                                grunt.log.writeln('download finished');
-                                var hash = md5(downloadedContent, "md5", 'hex');
-
-                                //settings.downloadPath must end with slash, TODO: Add if missing
-                                var relativePath = path.relative(path.dirname(dest), settings.downloadPath).replace(new RegExp('\\' + path.sep, 'g'), '/');
-
-                                var assetLocalPath = unixifyPath(path.join(settings.downloadPath, hash + "." + replaceOrder.filetype));
-                                var assetPath = relativePath + "/" + hash + "." + replaceOrder.filetype;
-
-                                grunt.file.write(assetLocalPath, downloadedContent);
-                                grunt.log.writeln('loadsome file written');
-                                if (options.mode !== false) {
-                                    fs.chmodSync(assetLocalPath, (options.mode === true) ? fs.lstatSync(src).mode : options.mode);
-                                }
-                                replaceOrder.newPath = assetPath;
-                                replaceOrders.push(replaceOrder);
-                                nextReplace();
                             });
 
                         },
@@ -143,7 +146,7 @@ module.exports = function(grunt) {
                                 content = content.replace(new RegExp('(<script.+src=[\'"])' + order.replace + '(["\'])', 'gm'), '$1' + order.newPath + '$2');
                             });
                             grunt.file.write(dest, content);
-                            grunt.log.writeln('html file written');
+                            grunt.log.writeln('file references replaced and html file written to: '+dest);
                             if (options.mode !== false) {
                                 fs.chmodSync(dest, (options.mode === true) ? fs.lstatSync(src).mode : options.mode);
                             }
