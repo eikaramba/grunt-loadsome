@@ -112,11 +112,12 @@ module.exports = function(grunt) {
 
                             request("https://loadso.me"+replaceOrder.path, function(err, response, downloadedContent) {
                                 if (response.statusCode !== 200 || err) {
-                                    if(response.statusCode == 429)
+                                    if(response.statusCode === 429) {
                                         grunt.log.subhead('Too many requests, please report this us so that we can adapt the timeout or implement a additional option to include a token for unlimited requests!');
-                                    else  
+                                    } else {
                                         grunt.log.subhead('Download failed:' + err);
-                                    setTimeout(function(){ nextReplace(err) }, 1150); //TODO: Add token option so that more concurrent calls can be made
+                                    }
+                                    setTimeout(function(){ nextReplace(err); }, 1150); //TODO: Add token option so that more concurrent calls can be made
                                 }else{
                                     var hash = md5(downloadedContent, "md5", 'hex');
 
@@ -133,7 +134,7 @@ module.exports = function(grunt) {
                                     }
                                     replaceOrder.newPath = assetPath;
                                     replaceOrders.push(replaceOrder);
-                                    setTimeout(function(){ nextReplace(err) }, 1150); //TODO: Add token option so that more concurrent calls can be made
+                                    setTimeout(function(){ nextReplace(err); }, 1150); //TODO: Add token option so that more concurrent calls can be made
                                 }
                             });
 
