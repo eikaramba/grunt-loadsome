@@ -17,6 +17,7 @@ module.exports = function(grunt) {
     var url = require('url');
     var async = require('async');
     var request = require('request');
+    var zlib = require('zlib');
 
     var detectDestType = function(dest) {
         if (grunt.util._.endsWith(dest, '/')) {
@@ -110,7 +111,14 @@ module.exports = function(grunt) {
                             replaceOrder.filetype = replaceOrder.path.split('.').pop();
                             grunt.log.writeln('found & download: ' + replaceOrder.replace);
 
-                            request("https://loadso.me"+replaceOrder.path, function(err, response, downloadedContent) {
+                            request({
+                                url: "https://loadso.me"+replaceOrder.path,
+                                headers: {
+                                    'Accept': 'text/plain, application/javascript, text/css'
+                                },
+                                gzip: true
+                            },
+                            function(err, response, downloadedContent) {
                                 if (response.statusCode !== 200 || err) {
                                     if(response.statusCode === 429) {
                                         grunt.log.subhead('Too many requests, please report this us so that we can adapt the timeout or implement a additional option to include a token for unlimited requests!');
